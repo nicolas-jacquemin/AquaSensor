@@ -1,0 +1,41 @@
+version: "3.7"
+
+services:
+
+  redis-testing:
+    image: redis:alpine
+    restart: "no"
+    networks:
+      - backend
+
+  mongo-testing:
+    image: mongo
+    restart: "no"
+    networks:
+      - backend
+    env_file: ./.env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: noworry
+      MONGO_INITDB_ROOT_PASSWORD: itsalocalapp
+    command: mongod --auth --quiet --logpath /dev/null 
+
+  test:
+    build:
+      context: .
+      dockerfile: test.Dockerfile
+    restart: "no"
+    env_file: ./.env
+    environment:
+      MONGODB_URI: "mongodb://noworry:itsalocalapp@mongo-testing"
+      REDIS_HOST: "redis-testing"
+      ROUTE_SRC: "./src/routes/"
+    ports:
+      - 9229:9229
+    depends_on:
+      - mongo-testing
+      - redis-testing
+    networks:
+      - backend
+
+networks:
+  backend:
