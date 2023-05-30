@@ -14,7 +14,16 @@ export default defineNuxtConfig({
   css: ["@/assets/main.scss"],
   // enable takeover mode
   typescript: { shim: false },
-  build: { transpile: ["vuetify"] },
+  build: {
+    terser: {
+      terserOptions: {
+        compress: {
+          drop_console: true
+        }
+      }
+    },
+    transpile: ["vuetify"]
+  } as any,
   modules: [
     "@kevinmarrec/nuxt-pwa",
     async (options, nuxt) => {
