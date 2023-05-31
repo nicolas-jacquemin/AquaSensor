@@ -10,3 +10,5 @@ void relay_on(char **);
 void relay_off(char **);
 void relay_on_range(char **args);
 void relay_off_range(char **args);
+void nfo_add(char **args);
+void nfo_rem(char **args);

@@ -1,9 +1,11 @@
 #include "serial.h"
 #include "lib.h"
 #include "commands.h"
+#include "nfo.h"
 
 void setup() {
   serial_setup();
+  nfo_setup();
 }
 
 void serialEvent() {
@@ -12,6 +14,7 @@ void serialEvent() {
 
 void loop() {
   serial_loop(2000);
+  print_nfo();
   delay(1);
 }
 

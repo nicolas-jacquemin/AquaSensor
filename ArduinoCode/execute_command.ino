@@ -5,6 +5,8 @@ commands_t commands[] = {
   {"relayoff", &relay_off},
   {"relayonrange", &relay_on_range},
   {"relayoffrange", &relay_off_range},
+  {"nfoadd", &nfo_add},
+  {"nforem", &nfo_rem},
   {NULL, NULL}
 };
 
