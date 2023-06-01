@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from "mongoose";
+import ArduinoSerial from './controllers/arduinoSerial.js';
 import { createNodeRedisClient, WrappedNodeRedisClient } from 'handy-redis';
 import requiredEnv from './requiredEnv.json' assert {
     type: "json"
@@ -53,6 +54,14 @@ async function start(): Promise<void> {
     } catch (error) {
         console.error("Cannot connect to redis");
         console.error(error);
+    }
+    try {
+        console.log("Connecting to Arduino");
+        await ArduinoSerial.init();
+    } catch (error) {
+        console.error("Cannot connect to Arduino");
+        console.error(error);
+        return;
     }
     await init_routes(app);
     await defaultAdmin();
