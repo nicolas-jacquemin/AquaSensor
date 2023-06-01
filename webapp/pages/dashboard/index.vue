@@ -1,11 +1,6 @@
 <template>
   <VContainer fluid class="fill-height justify-center">
-    <div>
-      <VSwitch name="relay1" v-model="relay1" @click="toggle" label="Relay 1"></VSwitch>
-      <VSwitch name="relay2" v-model="relay2" @click="toggle" label="Relay 2"></VSwitch>
-      <VSwitch name="relay3" v-model="relay3" @click="toggle" label="Relay 3"></VSwitch>
-      <VSwitch name="relay4" v-model="relay4" @click="toggle" label="Relay 4"></VSwitch>
-    </div>
+    <relayToggler/>
   </VContainer>
 </template>
 

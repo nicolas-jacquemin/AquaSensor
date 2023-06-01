@@ -9,20 +9,20 @@
 
             <VForm @submit.prevent="submit" class="mt-7">
               <div class="mt-1">
-                <label class="label text-grey-darken-2" for="email">Email</label>
+                <label class="label text-grey-darken-2" for="email">Username</label>
                 <VTextField
-                  :rules="[ruleRequired, ruleEmail]"
-                  v-model="email"
-                  prepend-inner-icon="fluent:mail-24-regular"
-                  id="email"
-                  name="email"
-                  type="email"
+                  :rules="[ruleRequired]"
+                  v-model="username"
+                  prepend-inner-icon="fluent:person-24-regular"
+                  id="username"
+                  name="username"
+                  type="username"
                 />
               </div>
               <div class="mt-1">
                 <label class="label text-grey-darken-2" for="password">Password</label>
                 <VTextField
-                  :rules="[ruleRequired, rulePassLen]"
+                  :rules="[ruleRequired, wrongPass]"
                   v-model="password"
                   prepend-inner-icon="fluent:password-20-regular"
                   id="password"
@@ -34,11 +34,6 @@
                 <VBtn type="submit" block min-height="44" class="gradient primary">Sign In</VBtn>
               </div>
             </VForm>
-            <p class="text-body-2 mt-10">
-              <NuxtLink to="/reset-password" class="font-weight-bold text-primary"
-                >Forgot password?</NuxtLink
-              >
-            </p>
           </VCol>
         </VRow>
       </VCol>
@@ -51,14 +46,70 @@
         </VImg>
       </VCol>
     </VRow>
+    <VDialog v-model="wrongPass" width="auto">
+      <VCard>
+        <VCardText>
+          <p class="red">Wrong username or password !</p>
+        </VCardText>
+        <VCardActions>
+          <v-btn color="primary" block @click="wrongPass = false" class="wrongPassOkButton"
+            >Ok</v-btn
+          >
+        </VCardActions>
+      </VCard>
+    </VDialog>
   </VContainer>
 </template>
 
-<script setup>
-const email = ref("");
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+
+import { AuthResponse } from "../types/auth.js";
+
+onMounted(() => {
+  if (localStorage.getItem("token") && localStorage.getItem("expUTC")) {
+    router.push("/dashboard");
+  }
+});
+
+const username = ref("");
 const password = ref("");
+const wrongPass = ref(false);
 
-const { ruleEmail, rulePassLen, ruleRequired } = useFormRules();
+const router = useRouter();
 
-const submit = async () => {};
+const ruleRequired = (v: string) => !!v || "This field is required";
+
+const submit = async () => {
+  if (username.value === "" || password.value === "") return;
+
+  try {
+    let tokens: AuthResponse = await (
+      await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username.value, password: password.value }),
+      })
+    ).json();
+    if (!tokens.data.token || !tokens.data.expUTC) throw new Error("Access token not found");
+    if (!tokens.data.refreshToken || !tokens.data.refreshExpUTC)
+      throw new Error("Refresh token not found");
+    localStorage.setItem("token", tokens.data.token);
+    localStorage.setItem("expUTC", tokens.data.expUTC);
+    localStorage.setItem("refreshToken", tokens.data.refreshToken);
+    localStorage.setItem("refreshExpUTC", tokens.data.refreshExpUTC);
+    await router.push("/dashboard");
+  } catch (error) {
+    password.value = "";
+    wrongPass.value = true;
+    console.error("Login Error: Wrong username or password", error);
+  }
+};
 </script>
+
+<style>
+.red {
+  color: red;
+}
+</style>
