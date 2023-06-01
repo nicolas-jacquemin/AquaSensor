@@ -15,6 +15,7 @@ export default defineNuxtConfig({
   // enable takeover mode
   typescript: { shim: false },
   build: {
+    ssr: false,
     terser: {
       terserOptions: {
         compress: {

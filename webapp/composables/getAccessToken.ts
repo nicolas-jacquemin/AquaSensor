@@ -3,7 +3,7 @@ export default async function getAccessToken(): Promise<string> {
         throw new Error("No token found");
     }
     try {
-        let user = await fetch("http://localhost:3000/api/auth/infos", {
+        let user = await fetch("/api/auth/infos", {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token")}`
@@ -20,7 +20,7 @@ export default async function getAccessToken(): Promise<string> {
             throw new Error("Unknown error");
         if (localStorage.getItem("refreshToken") === null)
             throw new Error("No refresh token found");
-        let renew = await fetch("http://localhost:3000/api/auth/renewToken", {
+        let renew = await fetch("/api/auth/renewToken", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

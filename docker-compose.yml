@@ -29,6 +29,8 @@ services:
   server:
     build: ./server
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       MONGODB_URI: "mongodb://noworry:itsalocalapp@mongo"
       REDIS_HOST: "redis"
@@ -45,7 +47,7 @@ services:
     environment:
       API_URL: "http://localhost:$PORT"
     ports:
-      - 8081:80
+      - $PORT:80
     depends_on:
       - server
     networks:

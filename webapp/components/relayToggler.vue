@@ -53,7 +53,6 @@ onMounted(() => {
                 model: data.data[key].state,
                 label: data.data[key].label,
             })
-            console.log(relays.value[relays.value.length -1])
         });
     };
     getRelays();

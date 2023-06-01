@@ -13,8 +13,8 @@ dotenv.config();
 
 const app = express();
 
-const port: number = parseInt(process.env.PORT!) || 80;
-const host: string = process.env.HOST || '0.0.0.0';
+const port: number = parseInt(process.env.API_PORT!) || 80;
+const host: string = process.env.API_HOST || '0.0.0.0';
 const proxyLevel: number = parseInt(process.env.PROXY_LEVEL!) || 0;
 
 let redisClient: WrappedNodeRedisClient;
