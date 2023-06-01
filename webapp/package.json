@@ -17,7 +17,7 @@
     "vuetify": "^3.1.15"
   },
   "dependencies": {
-    "vite-plugin-vuetify": "^1.0.2",
-    "nuxt": "latest"
+    "nuxt": "latest",
+    "vite-plugin-vuetify": "^1.0.2"
   }
 }
