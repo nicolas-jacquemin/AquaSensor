@@ -57,7 +57,10 @@ async function start(): Promise<void> {
     }
     try {
         console.log("Connecting to Arduino");
-        await ArduinoSerial.init();
+        if (process.env.NODE_ENV !== 'dev')
+            await ArduinoSerial.init();
+        else
+            console.log("Arduino connection skipped");
     } catch (error) {
         console.error("Cannot connect to Arduino");
         console.error(error);
