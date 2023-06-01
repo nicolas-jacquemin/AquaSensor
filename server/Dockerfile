@@ -13,5 +13,5 @@ FROM node:19-alpine
 WORKDIR /app
 COPY --from=ts-compiler /app/ ./
 ENV NODE_ENV=production
-RUN npm install
+RUN npm install --omit=dev
 ENTRYPOINT [ "npm", "start" ]
