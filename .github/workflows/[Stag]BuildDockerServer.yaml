@@ -8,12 +8,6 @@ on:
 env:
   REGISTRY_IMAGE: nicojqn/aquasensor-server
 
-
-on:
-  push:
-    branches:
-      - 'staging'
-
 jobs:
   docker:
     runs-on: ubuntu-latest
