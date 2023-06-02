@@ -1,4 +1,4 @@
-name: "[Prod]BuildDockerImage"
+name: "[Prod]BuildDockerWebappImage"
 
 on:
   push:
