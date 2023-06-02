@@ -38,4 +38,4 @@ jobs:
         with:
           context: ./webapp/.
           push: true
-          tags: nicojqn/${{ env.REGISTRY_IMAGE }}:${{ env.RELEASE_VERSION }}
+          tags: ${{ env.REGISTRY_IMAGE }}:${{ env.RELEASE_VERSION }}
