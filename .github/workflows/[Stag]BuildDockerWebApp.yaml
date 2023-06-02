@@ -3,7 +3,7 @@ name: "[Prod]BuildDockerWebappImage"
 on:
   push:
     branches:
-      - stagging
+      - staging
 
 env:
   REGISTRY_IMAGE: nicojqn/aquasensor-webapp
