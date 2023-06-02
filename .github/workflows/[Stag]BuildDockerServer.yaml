@@ -36,6 +36,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v4
         with:
+          platform: linux/arm/v7
           context: ./server/.
           push: true
           tags: ${{ env.REGISTRY_IMAGE }}:staging
