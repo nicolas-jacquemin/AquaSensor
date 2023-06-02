@@ -1,4 +1,4 @@
-name: "[Prod]BuildDockerImage"
+name: "[Prod]BuildDockerImageWebApp"
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - 'v*.*.*'
 
 env:
-  REGISTRY_IMAGE: nicojqn/aquasensor
+  REGISTRY_IMAGE: nicojqn/aquasensor-webapp
 
 jobs:
   build:
@@ -16,8 +16,6 @@ jobs:
       matrix:
         platform:
           - linux/amd64
-          - linux/arm/v6
-          - linux/arm/v7
           - linux/arm64
     steps:
       -
@@ -49,7 +47,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./webapp/.
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
@@ -103,4 +101,4 @@ jobs:
       -
         name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:stagging
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ env.RELEASE_VERSION }}
