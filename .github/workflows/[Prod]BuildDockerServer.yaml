@@ -1,16 +1,15 @@
-name: "[Prod]BuildDockerServerImage"
+name: "[Prod]BuildDockerImageServer"
 
 on:
   push:
-    branches:
-      - stagging
+    tags:
+      - 'v*.*.*'
 
 env:
   REGISTRY_IMAGE: nicojqn/aquasensor-server
 
 jobs:
   build:
-    if: ${{ !contains(github.event.head_commit.message, '#docs') }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -68,7 +67,6 @@ jobs:
           retention-days: 1
   
   merge:
-    if: ${{ !contains(github.event.head_commit.message, '#docs') }}
     runs-on: ubuntu-latest
     needs:
       - build
@@ -103,4 +101,4 @@ jobs:
       -
         name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:stagging
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ env.RELEASE_VERSION }}
