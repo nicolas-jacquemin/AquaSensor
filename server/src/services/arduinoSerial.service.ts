@@ -43,7 +43,7 @@ export default class ArduinoSerial {
     }
     public async send(data: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            this.port.write(data, (err) => {
+            this.port.write(Buffer.from(data), (err) => {
                 if (err)
                     reject(err);
                 else

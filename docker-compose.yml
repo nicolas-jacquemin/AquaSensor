@@ -13,7 +13,7 @@ services:
       driver: none
 
   mongo:
-    image: mongo
+    image: mongo:4.1
     restart: unless-stopped
     volumes:
       - mongodb:/data/db
@@ -35,6 +35,10 @@ services:
       MONGODB_URI: "mongodb://noworry:itsalocalapp@mongo"
       REDIS_HOST: "redis"
       ROUTE_SRC: "./dist/routes/"
+    volumes:
+      - /run/udev:/run/udev:ro
+      - /dev:/dev
+    privileged: true
     depends_on:
       - mongo
       - redis
