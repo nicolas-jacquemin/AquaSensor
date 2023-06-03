@@ -15,9 +15,6 @@ export default class ArduinoSerial {
             path: process.env.ARDUINO_SERIAL_PORT || "/dev/ttyACM0",
             autoOpen: false
         });
-        this.port.on("data", (data) => {
-            console.log(`got data from serial port: ${data}`);
-        })
         for (let i = Number(process.env.RELAY_LIST_MIN); i < Number(process.env.RELAY_LIST_MAX); i++) {
             this.relays[i] = {
                 id: i,
@@ -45,12 +42,15 @@ export default class ArduinoSerial {
         return ArduinoSerial.instance;
     }
     public async send(data: string): Promise<void> {
+        console.log(`Send ${data} to arduino`);
         return new Promise((resolve, reject) => {
             this.port.write(Buffer.from(data), (err) => {
                 if (err)
                     reject(err);
-                else
+                else {
+                    console.log("Success !");
                     resolve();
+                }
             });
         });
     }
