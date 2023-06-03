@@ -15,6 +15,19 @@ export default class ArduinoSerial {
             path: process.env.ARDUINO_SERIAL_PORT || "/dev/ttyACM0",
             autoOpen: false
         });
+        this.port.on("close", () => {
+            console.log("Arduino serial port closed");
+            console.log("Retry connection");
+            function retry(ardui: ArduinoSerial) {
+                ardui.port.open((err) => {
+                    if (err)
+                        setTimeout(() => retry(ardui), 1000);
+                    else
+                        console.log("Arduino Connected");
+                })
+            }
+            retry(this);
+        })
         for (let i = Number(process.env.RELAY_LIST_MIN); i < Number(process.env.RELAY_LIST_MAX); i++) {
             this.relays[i] = {
                 id: i,
@@ -44,7 +57,7 @@ export default class ArduinoSerial {
     public async send(data: string): Promise<void> {
         console.log(`Send ${data} to arduino`);
         return new Promise((resolve, reject) => {
-            this.port.write(Buffer.from(data), (err) => {
+            this.port.write(Buffer.from(data + '\n'), (err) => {
                 if (err)
                     reject(err);
                 else {
