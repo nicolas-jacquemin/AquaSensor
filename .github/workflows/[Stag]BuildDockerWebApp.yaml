@@ -17,7 +17,7 @@ jobs:
           - os: ubuntu-latest
             platform: linux/amd64
           - os: buildjet-2vcpu-ubuntu-2204-arm
-            platform: linux/arm/v8
+            platform: linux/arm64
     runs-on: ${{ matrix.platform.os }}
     steps:
       -
