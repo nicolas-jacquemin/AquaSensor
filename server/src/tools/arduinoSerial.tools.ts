@@ -1,0 +1,110 @@
+import { SerialPort } from "serialport";
+
+type Relay = {
+    id: number;
+    state: boolean;
+}
+
+export default class ArduinoSerial {
+    private static instance: ArduinoSerial;
+    private port: SerialPort;
+    private relays: any = {};
+    constructor() {
+        this.port = new SerialPort({
+            baudRate: 9600,
+            path: process.env.ARDUINO_SERIAL_PORT || "/dev/ttyACM0",
+            autoOpen: false
+        });
+        function retry(ardui: ArduinoSerial) {
+            ardui.port.open((err) => {
+                if (err) {
+                    console.log(`Cannot Connect to Arduino ${ardui.port.path}`);
+                    setTimeout(() => retry(ardui), 1000);
+                }
+                else
+                    console.log("Arduino Connected");
+            })
+        }
+        retry(this);
+        this.port.on("close", () => {
+            console.log("Arduino serial port closed");
+            console.log("Retry connection");
+            retry(this);
+        })
+        for (let i = Number(process.env.RELAY_LIST_MIN); i < Number(process.env.RELAY_LIST_MAX); i++) {
+            this.relays[i] = {
+                id: i,
+                label: `Relay ${i}`,
+                state: false,
+                timeoutToInvert: -1
+            } as Relay;
+        }
+    }
+
+    public async init(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.port.open((err) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve();
+            });
+        });
+    }
+    public static getInstance(): ArduinoSerial {
+        if (!ArduinoSerial.instance) {
+            ArduinoSerial.instance = new ArduinoSerial();
+        }
+        return ArduinoSerial.instance;
+    }
+    public async send(data: string): Promise<void> {
+        console.log(`Send ${data} to arduino`);
+        return new Promise((resolve, reject) => {
+            this.port.write(data, (err) => {
+                if (err)
+                    reject(err);
+                else {
+                    console.log("Success !");
+                    resolve();
+                }
+            });
+        });
+    }
+    public async relay(relayId: number, state: boolean): Promise<void> {
+        if (relayId < Number(process.env.RELAY_LIST_MIN) || relayId > Number(process.env.RELAY_LIST_MAX))
+            throw new Error("Relay id out of range");
+        switch (state) {
+            case true:
+                this.relays[relayId].state = true;
+                await this.send(`relayon,${relayId};`);
+                break;
+            case false:
+                this.relays[relayId].state = false;
+                await this.send(`relayoff,${relayId};`);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public getRelay(relayId: number): Relay {
+        if (relayId < Number(process.env.RELAY_LIST_MIN) || relayId > Number(process.env.RELAY_LIST_MAX))
+            throw new Error("Relay id out of range");
+        return this.relays[relayId];
+    }
+
+    public getRelays(): any {
+        return this.relays;
+    }
+    
+    public async read(): Promise<string> {
+        return new Promise((resolve, reject) => {
+            this.port.on("data", (data) => {
+                resolve(data.toString());
+            });
+        });
+    }
+    public on(event: string, callback: (data: string) => void): void {
+        this.port.on(event, callback);
+    }
+}

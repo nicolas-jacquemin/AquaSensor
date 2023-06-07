@@ -37,7 +37,7 @@ services:
       ROUTE_SRC: "./dist/routes/"
     volumes:
       - /run/udev:/run/udev:ro
-      - /dev:/dev
+      - /dev:/dev:rw
     privileged: true
     depends_on:
       - mongo

@@ -1,7 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from "mongoose";
-import ArduinoSerial from './controllers/arduinoSerial.js';
 import { createNodeRedisClient, WrappedNodeRedisClient } from 'handy-redis';
 import requiredEnv from './requiredEnv.json' assert {
     type: "json"
@@ -57,8 +56,9 @@ async function start(): Promise<void> {
     }
     try {
         console.log("Connecting to Arduino");
-        if (process.env.NODE_ENV !== 'dev')
-            await ArduinoSerial.init();
+        if (process.env.NODE_ENV !== 'dev') {
+            console.log("Arduino connection delayed to background");
+        }
         else
             console.log("Arduino connection skipped");
     } catch (error) {

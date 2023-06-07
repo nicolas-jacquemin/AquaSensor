@@ -4,7 +4,7 @@ import success from '../../resultConstructor/success.js';
 import errorCustomMessage from '../../resultConstructor/errorCustomMessage.js';
 import badArguments from '../../resultConstructor/badArguments.js';
 import { Router } from "express";
-import arduino from '../../controllers/arduinoSerial.js';
+import arduino from '../../services/arduinoSerial.service.js';
 import { default as checkPerm, hasPerm } from "../../middlewares/auth/checkPerm.js";
 import auth from "../../middlewares/auth/verifyToken.js";
 
