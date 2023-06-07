@@ -14,7 +14,7 @@ void serialEvent() {
 
 void loop() {
   serial_loop(2000);
-  print_nfo();
+  print_nfo(10000);
   delay(1);
 }
 
