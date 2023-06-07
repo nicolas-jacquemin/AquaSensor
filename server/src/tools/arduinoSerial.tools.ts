@@ -7,29 +7,49 @@ type Relay = {
 
 export default class ArduinoSerial {
     private static instance: ArduinoSerial;
-    private port: SerialPort;
+    private port: SerialPort = new SerialPort({
+        baudRate: 9600,
+        path: process.env.ARDUINO_SERIAL_PORT || "/dev/ttyACM0",
+        autoOpen: false
+    });
     private relays: any = {};
+    private connected: boolean = false;
     constructor() {
+        this.heartbeat();
+        this.connect();
+    }
+
+    private connect() {
         this.port = new SerialPort({
             baudRate: 9600,
             path: process.env.ARDUINO_SERIAL_PORT || "/dev/ttyACM0",
             autoOpen: false
         });
-        function retry(ardui: ArduinoSerial) {
-            ardui.port.open((err) => {
-                if (err) {
-                    console.log(`Cannot Connect to Arduino ${ardui.port.path}`);
-                    setTimeout(() => retry(ardui), 1000);
-                }
-                else
-                    console.log("Arduino Connected");
-            })
-        }
-        retry(this);
+        this.port.open((err) => {
+            if (err) {
+                console.log(`Cannot Connect to Arduino ${this.port.path}`);
+                setTimeout(() => this.connect(), 1000);
+            }
+            else {
+                console.log("Arduino Connected");
+                this.connected = true;
+            }
+        })
         this.port.on("close", () => {
-            console.log("Arduino serial port closed");
-            console.log("Retry connection");
-            retry(this);
+            if (this.connected) {
+                this.connected = false;
+                console.log("Arduino serial port closed");
+                console.log("Retry connection");
+                this.connect();
+            }
+        })
+        this.port.on("error", () => {
+            if (this.connected) {
+                this.connected = false;
+                console.log("Arduino serial port error");
+                console.log("Retry connection");
+                this.connect();
+            }
         })
         for (let i = Number(process.env.RELAY_LIST_MIN); i < Number(process.env.RELAY_LIST_MAX); i++) {
             this.relays[i] = {
@@ -39,6 +59,17 @@ export default class ArduinoSerial {
                 timeoutToInvert: -1
             } as Relay;
         }
+    }
+
+    private async heartbeat() {
+        if (!this.connected) {
+            setTimeout(() => this.heartbeat(), 1000);
+            return;
+        }
+        this.send("heartbeat;")
+        .finally(() => {
+            setTimeout(() => this.heartbeat(), 4000);
+        });
     }
 
     public async init(): Promise<void> {
@@ -58,33 +89,49 @@ export default class ArduinoSerial {
         return ArduinoSerial.instance;
     }
     public async send(data: string): Promise<void> {
-        console.log(`Send ${data} to arduino`);
         return new Promise((resolve, reject) => {
+            if (!this.connected)
+                reject("Arduino not connected");
             this.port.write(data, (err) => {
-                if (err)
+                if (err) {
                     reject(err);
+                }
                 else {
-                    console.log("Success !");
                     resolve();
                 }
             });
         });
     }
     public async relay(relayId: number, state: boolean): Promise<void> {
-        if (relayId < Number(process.env.RELAY_LIST_MIN) || relayId > Number(process.env.RELAY_LIST_MAX))
-            throw new Error("Relay id out of range");
-        switch (state) {
-            case true:
-                this.relays[relayId].state = true;
-                await this.send(`relayon,${relayId};`);
-                break;
-            case false:
-                this.relays[relayId].state = false;
-                await this.send(`relayoff,${relayId};`);
-                break;
-            default:
-                break;
-        }
+        return new Promise((resolve, reject) => {
+            if (relayId < Number(process.env.RELAY_LIST_MIN) || relayId > Number(process.env.RELAY_LIST_MAX))
+                throw new Error("Relay id out of range");
+            switch (state) {
+                case true:
+                    this.send(`relayon,${relayId};`)
+                    .catch((err) => {
+                        reject(err);
+                    })
+                    .then(() => {
+                        this.relays[relayId].state = true;
+                        resolve();
+                    })
+                    break;
+                case false:
+                    this.send(`relayoff,${relayId};`)
+                    .catch((err) => {
+                        console.error(err);
+                        reject(err);
+                    })
+                    .then(() => {
+                        this.relays[relayId].state = false;
+                        resolve();
+                    })
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
     public getRelay(relayId: number): Relay {

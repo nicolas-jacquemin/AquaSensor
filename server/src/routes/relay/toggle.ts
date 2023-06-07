@@ -26,7 +26,7 @@ router.post("/:relayId/:state",
             return responseC(res, 400, badArguments(requestName, result.array()));
         }
         try {
-            arduino.relay(req.params!.relayId, (req.params!.state === "on" ? true : false));
+            await arduino.relay(req.params!.relayId, (req.params!.state === "on" ? true : false));
             return responseC(res, 200, success(requestName, 200));
         } catch (error) {
             return responseC(res, 500, errorCustomMessage(requestName, "Arduino Communication Failed", 500));

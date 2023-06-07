@@ -82,11 +82,19 @@ const toggle = async (e: any) => {
       }
   }
 
-  await fetch(`/api/relay/${relayId}/${state ? "on" : "off"}`, {
+  fetch(`/api/relay/${relayId}/${state ? "on" : "off"}`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
-  });
+  })
+  .catch((error) => {
+    relay.model = !relay.model;
+  })
+  .then((res) => {
+    if (res.status != 200) {
+      relay.model = !relay.model;
+    }
+  })
 };
 </script>
