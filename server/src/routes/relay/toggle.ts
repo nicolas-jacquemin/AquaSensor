@@ -7,6 +7,7 @@ import { Router } from "express";
 import arduino from '../../services/arduinoSerial.service.js';
 import { default as checkPerm, hasPerm } from "../../middlewares/auth/checkPerm.js";
 import auth from "../../middlewares/auth/verifyToken.js";
+import { Server } from 'socket.io';
 
 const requestName = "relay.toggle"
 
@@ -27,6 +28,7 @@ router.post("/:relayId/:state",
         }
         try {
             await arduino.relay(req.params!.relayId, (req.params!.state === "on" ? true : false));
+            ((req as any).io as Server).to("relay").emit("relay", { relayId: req.params!.relayId, state: (req.params!.state === "on" ? true : false) });
             return responseC(res, 200, success(requestName, 200));
         } catch (error) {
             return responseC(res, 500, errorCustomMessage(requestName, "Arduino Communication Failed", 500));

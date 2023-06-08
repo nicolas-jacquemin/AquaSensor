@@ -1,4 +1,5 @@
 import express from 'express';
+import http from 'http';
 import dotenv from 'dotenv';
 import mongoose from "mongoose";
 import { createNodeRedisClient, WrappedNodeRedisClient } from 'handy-redis';
@@ -10,8 +11,10 @@ import defaultAdmin from './controllers/auth/defineAdmin.js';
 
 dotenv.config();
 
-const app = express();
+let dbConnected: boolean = false;
 
+const app = express();
+const server = http.createServer(app);
 const port: number = parseInt(process.env.API_PORT!) || 80;
 const host: string = process.env.API_HOST || '0.0.0.0';
 const proxyLevel: number = parseInt(process.env.PROXY_LEVEL!) || 0;
@@ -39,9 +42,11 @@ async function start(): Promise<void> {
     app.get("/ip", (request, response) => response.send(request.ip));
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
+    app.use((await import("./middlewares/socket.js")).default);
     try {
         console.log("Connecting to db");
         await mongoose.connect(process.env.MONGODB_URI!);
+        dbConnected = true;
     } catch (error) {
         console.error("Cannot connect to db");
         console.error(error);
@@ -68,7 +73,7 @@ async function start(): Promise<void> {
     }
     await init_routes(app);
     await defaultAdmin();
-    app.listen(port, host, async () => {
+    server.listen(port, host, async () => {
         console.log(`Server is running on http://${host}:${port}`);
     });
 }
@@ -80,4 +85,4 @@ process.on("uncaughtException", (err) => {
     console.log("Caught exception: ", err);
 });
 
-export { redisClient, app, start };
+export { redisClient, app, start, server, dbConnected };

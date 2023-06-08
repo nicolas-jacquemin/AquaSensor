@@ -1,7 +1,8 @@
 import { SerialPort } from "serialport";
 
-type Relay = {
+export type Relay = {
     id: number;
+    normallyOpen: boolean;
     state: boolean;
 }
 
@@ -14,12 +15,14 @@ export default class ArduinoSerial {
     });
     private relays: any = {};
     private connected: boolean = false;
-    constructor() {
+    constructor(relays: any) {
         this.heartbeat();
+        this.relays = relays;
         this.connect();
     }
 
     private connect() {
+        this.port.close((err) => {});
         this.port = new SerialPort({
             baudRate: 9600,
             path: process.env.ARDUINO_SERIAL_PORT || "/dev/ttyACM0",
@@ -51,13 +54,8 @@ export default class ArduinoSerial {
                 this.connect();
             }
         })
-        for (let i = Number(process.env.RELAY_LIST_MIN); i < Number(process.env.RELAY_LIST_MAX); i++) {
-            this.relays[i] = {
-                id: i,
-                label: `Relay ${i}`,
-                state: false,
-                timeoutToInvert: -1
-            } as Relay;
+        for (let relay of Object.keys(this.relays)) {
+            this.relays[relay].state = false;
         }
     }
 
@@ -82,12 +80,6 @@ export default class ArduinoSerial {
             });
         });
     }
-    public static getInstance(): ArduinoSerial {
-        if (!ArduinoSerial.instance) {
-            ArduinoSerial.instance = new ArduinoSerial();
-        }
-        return ArduinoSerial.instance;
-    }
     public async send(data: string): Promise<void> {
         return new Promise((resolve, reject) => {
             if (!this.connected)
@@ -104,8 +96,8 @@ export default class ArduinoSerial {
     }
     public async relay(relayId: number, state: boolean): Promise<void> {
         return new Promise((resolve, reject) => {
-            if (relayId < Number(process.env.RELAY_LIST_MIN) || relayId > Number(process.env.RELAY_LIST_MAX))
-                throw new Error("Relay id out of range");
+            if (!this.relays[relayId])
+                reject("Relay not found");
             switch (state) {
                 case true:
                     this.send(`relayon,${relayId};`)
@@ -135,9 +127,12 @@ export default class ArduinoSerial {
     }
 
     public getRelay(relayId: number): Relay {
-        if (relayId < Number(process.env.RELAY_LIST_MIN) || relayId > Number(process.env.RELAY_LIST_MAX))
-            throw new Error("Relay id out of range");
         return this.relays[relayId];
+    }
+
+    public updateRelayConfig(config: any) {
+        delete this.relays;
+        this.relays = config;
     }
 
     public getRelays(): any {

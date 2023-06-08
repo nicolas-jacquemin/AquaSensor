@@ -11,11 +11,11 @@ import checkPerm from "../../../middlewares/auth/checkPerm.js";
 
 export const router = Router();
 
-const requestName = "auth.permission.delete";
+const requestName = "auth.permission.remove";
 
 router.delete("/permission/:username",
     auth,
-    checkPerm("auth.permission.delete"),
+    checkPerm("auth.permission.remove"),
     param("username").isString(),
     param("username").custom(async value => {
         if (await userM.findOne({ slug: value })) {

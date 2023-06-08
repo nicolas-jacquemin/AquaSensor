@@ -36,7 +36,7 @@ services:
       REDIS_HOST: "redis"
       ROUTE_SRC: "./dist/routes/"
     ports:
-      - $PORT:$PORT
+      - $PORT:80
     depends_on:
       - mongo
       - redis
