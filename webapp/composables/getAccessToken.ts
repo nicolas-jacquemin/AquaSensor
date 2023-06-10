@@ -1,3 +1,11 @@
+function setStorage(email: string, icon: string, name: string, slug: string, permissions: string[]) {
+    localStorage.setItem('email', email)
+    localStorage.setItem('icon', icon)
+    localStorage.setItem('name', name)
+    localStorage.setItem('slug', slug)
+    localStorage.setItem('permissions', JSON.stringify(permissions))
+}
+
 export default async function getAccessToken(): Promise<string> {
     if (localStorage.getItem("token") === null) {
         throw new Error("No token found");
@@ -14,6 +22,8 @@ export default async function getAccessToken(): Promise<string> {
         } else if (user.status !== 200) {
             throw new Error("Unknown error");
         }
+        let userData = await user.json();
+        setStorage(userData.data.email, userData.data.icon, userData.data.name, userData.data.slug, userData.data.permissions);
         return localStorage.getItem("token")!;
     } catch (e: any) {
         if (e.message === "Unknown error")
@@ -42,6 +52,7 @@ export default async function getAccessToken(): Promise<string> {
         localStorage.setItem("expUTC", json.data.expUTC);
         localStorage.setItem("refreshToken", json.data.refreshToken);
         localStorage.setItem("refreshExpUTC", json.data.refreshExpUTC);
+        setStorage(json.data.email, json.data.icon, json.data.name, json.data.slug, json.data.permissions);
         return json.data.token;
     }
 }
