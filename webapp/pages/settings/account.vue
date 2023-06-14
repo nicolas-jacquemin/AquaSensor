@@ -7,12 +7,14 @@
         </v-avatar>
         <h2 class="d-flex justify-center mt-10">{{username}}</h2>
         <h5 class="d-flex justify-center grey-italic">{{userslug}}</h5>
+        <VBtn color="primary" @click="changeprofile = true" class="d-flex mx-auto mt-10">Customize Profile</VBtn>
         <VBtn color="primary" @click="changepass = true" class="d-flex mx-auto mt-10">Change Password</VBtn>
         <VBtn color="red" @click="logout" class="d-flex mx-auto mt-10">Logout</VBtn>
       </VCardText>
     </VCard>
   </VContainer>
   <changepassword @emittedEvent="onChangedPassword" :model="changepass"></changepassword>
+  <changeProfile @emittedEvent="onChangedProfile" :model="changeprofile"></changeProfile>
 </template>
 
 <script setup>
@@ -25,6 +27,7 @@ let username = ref("");
 let userslug = ref("");
 const router = useRouter();
 const changepass = ref(false);
+const changeprofile = ref(false);
 
 onMounted(() => {
     username.value = localStorage.getItem("name");
@@ -38,6 +41,11 @@ function logout() {
 
 function onChangedPassword() {
     changepass.value = false;
+}
+
+function onChangedProfile() {
+    changeprofile.value = false;
+    username.value = localStorage.getItem("name");
 }
 
 </script>

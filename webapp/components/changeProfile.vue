@@ -4,22 +4,13 @@
       <VCardText>
         <VForm @submit.prevent="submit" class="mt-7">
           <VTextField
-            v-model="newpassword"
-            :rules="[ruleRequired, minimalPass]"
-            prepend-inner-icon="fluent:password-24-regular"
-            id="newpass"
-            name="newpass"
-            type="newpass"
-            label="New Password"
-          />
-          <VTextField
-            v-model="confirmpass"
-            :rules="[ruleRequired, passwordMatch]"
-            prepend-inner-icon="fluent:password-24-regular"
-            id="confirmpass"
-            name="confirmpass"
-            type="confirmpass"
-            label="Confirm Password"
+            v-model="name"
+            :rules="[ruleRequired, minimalLength]"
+            prepend-inner-icon="fluent:person-24-regular"
+            id="name"
+            name="name"
+            type="name"
+            label="Name"
           />
           <VBtn @click="cancel">Cancel</VBtn>
           <VBtn type="submit">Save</VBtn>
@@ -41,33 +32,30 @@
 </template>
 
 <script setup lang="ts">
-const changepass = ref(false);
-const newpassword = ref("");
-const confirmpass = ref("");
+const name = ref("");
 const loading = ref(false);
 const emit = defineEmits(["emittedEvent"]);
-
-const router = useRouter();
 
 const networkError = ref(false);
 const unknownError = ref(false);
 
-const ruleRequired = (v: string) => !!v || "This field is required";
-const minimalPass = (v: string) =>
-  v.length >= 8 || "Password must be at least 8 characters";
+const router = useRouter();
 
-const passwordMatch = computed(
-  () => newpassword.value === confirmpass.value || "Passwords do not match"
-);
+const ruleRequired = (v: string) => !!v || "This field is required";
+const minimalLength = (v: string) =>
+  v.length >= 4 || "Must be at least 4 characters";
 
 const props = defineProps(["model"]);
 
 const modelValue = computed(() => {
-  if (props.model) return true;
+  if (props.model) {
+    name.value = localStorage.getItem("name");
+    return true;
+  }
 });
 
 async function submit() {
-  if (newpassword.value != confirmpass.value || newpassword.value.length < 8) return false;
+  if (name.value.length < 4) return false;
   loading.value = true;
 
   let token: string = "";
@@ -94,10 +82,11 @@ async function submit() {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        password: newpassword.value,
+        name: name.value,
       }),
     });
     if (updateReq.status == 200) {
+      localStorage.setItem("name", name.value);
       emit("emittedEvent", true);
     } else {
       unknownError.value = true;
@@ -110,14 +99,13 @@ async function submit() {
 
   emit("emittedEvent", true);
   loading.value = false;
-  newpassword.value = "";
-  confirmpass.value = "";
+  name.value = "";
 }
 
 function cancel() {
   loading.value = false;
-  newpassword.value = "";
-  confirmpass.value = "";
+  name.value = "";
   emit("emittedEvent", false);
 }
+
 </script>
