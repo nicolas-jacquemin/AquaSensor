@@ -27,19 +27,4 @@ const retry = () => {
 
 const networkError = ref(false);
 
-onNuxtReady(async () => {
-  const router = useRouter();
-
-  try {
-    await getAccessToken();
-  } catch (error: any) {
-    if (error.message == "Unknown error") {
-      networkError.value = true;
-    }
-    if (error.message == "Invalid token") {
-      localStorage.clear();
-      await router.push("/");
-    }
-  }
-});
 </script>

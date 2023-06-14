@@ -117,7 +117,11 @@ const submit = async () => {
     localStorage.setItem("refreshToken", tokens.data.refreshToken);
     localStorage.setItem("refreshExpUTC", tokens.data.refreshExpUTC);
     await getAccessToken();
-    window.location.href="/dashboard";
+    let callback = window.location.search.split("callback=")[1];
+    if (!callback)
+      window.location.href="/dashboard";
+    else
+      router.push(callback);
   } catch (error) {
     if (error.message === "Server error") {
       password.value = "";

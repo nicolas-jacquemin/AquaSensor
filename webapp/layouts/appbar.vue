@@ -39,7 +39,7 @@ onNuxtReady(async () => {
     }
     if (error.message == "Invalid token") {
       localStorage.clear();
-      await router.push("/");
+      await router.push(`/?callback=${window.location.pathname}`);
     }
   }
 });

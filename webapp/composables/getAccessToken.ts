@@ -8,7 +8,7 @@ function setStorage(email: string, icon: string, name: string, slug: string, per
 
 export default async function getAccessToken(): Promise<string> {
     if (localStorage.getItem("token") === null) {
-        throw new Error("No token found");
+        throw new Error("Invalid token");
     }
     try {
         let user = await fetch("/api/auth/infos", {
@@ -29,7 +29,7 @@ export default async function getAccessToken(): Promise<string> {
         if (e.message === "Unknown error")
             throw new Error("Unknown error");
         if (localStorage.getItem("refreshToken") === null)
-            throw new Error("No refresh token found");
+            throw new Error("Invalid token");
         let renew = await fetch("/api/auth/renewToken", {
             method: "POST",
             headers: {
