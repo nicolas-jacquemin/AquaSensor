@@ -36,5 +36,10 @@ const items = ref([
     text: "Account",
     to: "/settings/account",
   },
+  {
+    icon: "fluent:brain-circuit-24-regular",
+    text: "Relays",
+    to: "/settings/relay",
+  }
 ]);
 </script>

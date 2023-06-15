@@ -11,6 +11,8 @@ export default async function (req: Request, res: Response) {
     if (!errors.isEmpty())
         return responseC(res, 400, errors.array());
     try {
+        if (await relayConfig.findOne({ relayId: req.body.id }))
+            return responseC(res, 400, { message: "Relay already exists" });
         await relayConfig.create({
             relayId: req.body.id,
             name: req.body.name,
