@@ -1,91 +1,33 @@
-import { SerialPort } from "serialport";
+import { default as ArduinoSerial, Relay } from "../tools/arduinoSerial.tools.js";
+import relayConfig from "../controllers/relays/models/relayConfig.js";
 
-type Relay = {
-    id: number;
-    state: boolean;
+async function waitDB() {
+    return new Promise((resolve, reject) => {
+        let interval = setInterval(async () => {
+            if ((await import("../app.js")).dbConnected) {
+                clearInterval(interval);
+                resolve(true);
+            }
+        }, 500);
+    });
 }
 
-export default class ArduinoSerial {
-    private static instance: ArduinoSerial;
-    private port: SerialPort;
-    private relays: any = {};
-    constructor() {
-        this.port = new SerialPort({
-            baudRate: 9600,
-            path: process.env.ARDUINO_SERIAL_PORT || "/dev/ttyACM0",
-            autoOpen: false
-        });
-        for (let i = Number(process.env.RELAY_LIST_MIN); i < Number(process.env.RELAY_LIST_MAX); i++) {
-            this.relays[i] = {
-                id: i,
-                label: `Relay ${i}`,
-                state: false,
-                timeoutToInvert: -1
-            } as Relay;
-        }
-    }
+export async function getUpdatedRelays() {
+    await waitDB();
+    let relaysRequest = await relayConfig.find();
 
-    public async init(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            this.port.open((err) => {
-                if (err)
-                    reject(err);
-                else
-                    resolve();
-            });
-        });
-    }
-    public static getInstance(): ArduinoSerial {
-        if (!ArduinoSerial.instance) {
-            ArduinoSerial.instance = new ArduinoSerial();
-        }
-        return ArduinoSerial.instance;
-    }
-    public async send(data: string): Promise<void> {
-        return new Promise((resolve, reject) => {
-            this.port.write(Buffer.from(data), (err) => {
-                if (err)
-                    reject(err);
-                else
-                    resolve();
-            });
-        });
-    }
-    public async relay(relayId: number, state: boolean): Promise<void> {
-        if (relayId < Number(process.env.RELAY_LIST_MIN) || relayId > Number(process.env.RELAY_LIST_MAX))
-            throw new Error("Relay id out of range");
-        switch (state) {
-            case true:
-                this.relays[relayId].state = true;
-                await this.send(`relayon,${relayId};`);
-                break;
-            case false:
-                this.relays[relayId].state = false;
-                await this.send(`relayoff,${relayId};`);
-                break;
-            default:
-                break;
-        }
-    }
-
-    public getRelay(relayId: number): Relay {
-        if (relayId < Number(process.env.RELAY_LIST_MIN) || relayId > Number(process.env.RELAY_LIST_MAX))
-            throw new Error("Relay id out of range");
-        return this.relays[relayId];
-    }
-
-    public getRelays(): any {
-        return this.relays;
-    }
+    let relays: any = {};
     
-    public async read(): Promise<string> {
-        return new Promise((resolve, reject) => {
-            this.port.on("data", (data) => {
-                resolve(data.toString());
-            });
-        });
+    for (let relay of relaysRequest) {
+        (relays[relay.relayId] as Relay) = {
+            id: relay.relayId,
+            normallyOpen: relay.normallyOpen,
+            state: false
+        };
     }
-    public on(event: string, callback: (data: string) => void): void {
-        this.port.on(event, callback);
-    }
+    return relays;
 }
+
+let arduino: ArduinoSerial = new ArduinoSerial(await getUpdatedRelays());
+
+export default arduino;

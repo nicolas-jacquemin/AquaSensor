@@ -11,7 +11,8 @@ RUN npm run build
 
 FROM node:19-alpine
 WORKDIR /app
+COPY --from=ts-compiler /app/node_modules ./node_modules
+RUN npm prune --omit=dev
 COPY --from=ts-compiler /app/ ./
 ENV NODE_ENV=production
-RUN npm install --omit=dev
 ENTRYPOINT [ "npm", "start" ]

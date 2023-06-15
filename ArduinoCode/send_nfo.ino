@@ -35,7 +35,13 @@ void nfo_rem(char **args) {
     rem_from_reader(pin_nb);
 }
 
-void print_nfo(void) {
+void print_nfo(uint32_t timeout) {
+    static uint32_t elapsed = 0;
+    if (elapsed < timeout) {
+        elapsed += 1;
+        return;
+    }
+    elapsed = 0;
     Serial.print("nfo,");
     for (int i = 0; analogToRead[i] != -1; i++) {
         if (analogToRead[i] == -2)

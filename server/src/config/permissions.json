@@ -1,0 +1,21 @@
+{
+    "auth": {
+        "permission": {
+            "list": "List all user permissions",
+            "add": "Add a permission to a user",
+            "remove": "Remove a permission from a user"
+        }
+    },
+    "relay": {
+        "list": "List all relays",
+        "toggle": "Toggle a relay"
+    },
+    "settings": {
+        "relay": {
+            "get": "Get a relay's settings",
+            "create": "Create a new relay",
+            "delete": "Delete a relay",
+            "update": "Update a relay"
+        }
+    }
+}

@@ -103,8 +103,8 @@ jobs:
       -
         name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:latest
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ env.RELEASE_VERSION }}
       -
         name: Inspect image
         run: |
-          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ env.RELEASE_VERSION }}
+          docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:latest

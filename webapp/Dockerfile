@@ -14,6 +14,7 @@ COPY package.json /app/
 RUN npm install
 COPY . .
 RUN npm run generate
+RUN npm prune --omit=dev
 
 FROM nginx AS webapp
 

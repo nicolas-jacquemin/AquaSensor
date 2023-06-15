@@ -1,37 +1,30 @@
 <template>
-	<div>
-		<VApp>
-			<VMain>
-				<div v-if="isLoading" class="loading">
-					<Loading />
-				</div>
-				<slot />
-			</VMain>
-		</VApp>
-	</div>
+  <div>
+    <VApp>
+      <VMain>
+        <slot />
+      </VMain>
+	  <VDialog v-model="networkError" width="auto" persistent>
+          <VCard>
+            <VCardText>
+              <p class="red">Network Error !</p>
+            </VCardText>
+			<VCardActions>
+          <v-btn color="primary" block @click="retry"
+            >Retry</v-btn>
+        </VCardActions>
+          </VCard>
+        </VDialog>
+    </VApp>
+  </div>
 </template>
 
-<script>
-export default {
-  computed: {
-    isLoading() {
-		console.log("computing...");
-      	return this.$nuxt.isFetching || this.$nuxt.isPreview;
-    },
-  },
+<script setup lang="ts">
+
+const retry = () => {
+  window.location.reload();
 };
 
-onNuxtReady( async () => {
-	const router = useRouter();
-	
-	try {
-		await getAccessToken();
-	}
-	catch (error) {
-        if (error.message == "Invalid token") {
-            localStorage.clear();
-            await router.push("/");
-        }
-    }
-})
+const networkError = ref(false);
+
 </script>

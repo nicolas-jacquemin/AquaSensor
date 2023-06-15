@@ -24,6 +24,15 @@ router.put("/update",
         }
         return false;
     }),
+    body('name').custom((value, { req }) => {
+        if (!value) {
+            return true;
+        }
+        if (typeof value === "string" && value.length > 3) {
+            return true;
+        }
+        return false;
+    }),
     body('password').custom((value, { req }) => {
         if (!value) {
             return true;
@@ -48,6 +57,7 @@ router.put("/update",
             return;
         }
         let newUser: any = {
+            name: req.body.name,
             email: req.body.email,
             avatar: req.body.avatar,
             password: req.body.password

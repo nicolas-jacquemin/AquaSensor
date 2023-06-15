@@ -27,7 +27,7 @@ services:
       driver: none
 
   server:
-    image: nicojqn/aquasensor-server:latest
+    image: nicojqn/aquasensor-server:staging
     restart: unless-stopped
     env_file:
       - .env
@@ -37,7 +37,7 @@ services:
       ROUTE_SRC: "./dist/routes/"
     volumes:
       - /run/udev:/run/udev:ro
-      - /dev:/dev
+      - /dev:/dev:rw
     privileged: true
     depends_on:
       - mongo
@@ -46,7 +46,7 @@ services:
       - backend
     
   webapp:
-    image: nicojqn/aquasensor-webapp:latest
+    image: nicojqn/aquasensor-webapp:staging
     restart: unless-stopped
     environment:
       API_URL: "http://localhost:$PORT"

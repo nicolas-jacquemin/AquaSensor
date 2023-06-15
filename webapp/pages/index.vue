@@ -16,7 +16,7 @@
                   prepend-inner-icon="fluent:person-24-regular"
                   id="username"
                   name="username"
-                  type="username"
+                  type="email"
                 />
               </div>
               <div class="mt-1">
@@ -58,6 +58,18 @@
         </VCardActions>
       </VCard>
     </VDialog>
+    <VDialog v-model="serverError" width="auto">
+      <VCard>
+        <VCardText>
+          <p class="red">Cannot connect to the server !</p>
+        </VCardText>
+        <VCardActions>
+          <v-btn color="primary" block @click="serverError = false"
+            >Ok</v-btn
+          >
+        </VCardActions>
+      </VCard>
+    </VDialog>
   </VContainer>
 </template>
 
@@ -76,6 +88,7 @@ onMounted(() => {
 const username = ref("");
 const password = ref("");
 const wrongPass = ref(false);
+const serverError = ref(false);
 
 const router = useRouter();
 
@@ -85,13 +98,17 @@ const submit = async () => {
   if (username.value === "" || password.value === "") return;
 
   try {
-    let tokens: AuthResponse = await (
+    let tokensReq = await (
       await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: username.value, password: password.value }),
       })
-    ).json();
+    );
+    if (tokensReq.status === 500) {
+      throw new Error("Server error");
+    }
+    let tokens: AuthResponse = await tokensReq.json();
     if (!tokens.data.token || !tokens.data.expUTC) throw new Error("Access token not found");
     if (!tokens.data.refreshToken || !tokens.data.refreshExpUTC)
       throw new Error("Refresh token not found");
@@ -99,11 +116,20 @@ const submit = async () => {
     localStorage.setItem("expUTC", tokens.data.expUTC);
     localStorage.setItem("refreshToken", tokens.data.refreshToken);
     localStorage.setItem("refreshExpUTC", tokens.data.refreshExpUTC);
-    await router.push("/dashboard");
+    await getAccessToken();
+    let callback = window.location.search.split("callback=")[1];
+    if (!callback)
+      window.location.href="/dashboard";
+    else
+      router.push(callback);
   } catch (error) {
-    password.value = "";
-    wrongPass.value = true;
-    console.error("Login Error: Wrong username or password", error);
+    if (error.message === "Server error") {
+      password.value = "";
+      serverError.value = true;
+    } else {
+      password.value = "";
+      wrongPass.value = true;
+    }
   }
 };
 </script>
