@@ -9,7 +9,7 @@
             prepend-inner-icon="fluent:password-24-regular"
             id="newpass"
             name="newpass"
-            type="newpass"
+            type="password"
             label="New Password"
           />
           <VTextField
@@ -18,7 +18,7 @@
             prepend-inner-icon="fluent:password-24-regular"
             id="confirmpass"
             name="confirmpass"
-            type="confirmpass"
+            type="password"
             label="Confirm Password"
           />
           <VBtn @click="cancel">Cancel</VBtn>

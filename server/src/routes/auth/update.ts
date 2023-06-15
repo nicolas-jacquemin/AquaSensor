@@ -62,7 +62,6 @@ router.put("/update",
             avatar: req.body.avatar,
             password: req.body.password
         }
-        console.log(newUser);
         for (let obj of Object.keys(newUser)) {
             if (newUser[obj] === undefined) {
                 delete newUser[obj];

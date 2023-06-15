@@ -16,7 +16,7 @@
                   prepend-inner-icon="fluent:person-24-regular"
                   id="username"
                   name="username"
-                  type="username"
+                  type="email"
                 />
               </div>
               <div class="mt-1">
