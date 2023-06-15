@@ -59,6 +59,11 @@
 </template>
 
 <script setup lang="ts">
+
+useHead({
+  title: 'Relay Table',
+})
+
 definePageMeta({
   layout: "appbar",
 });

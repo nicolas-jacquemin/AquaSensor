@@ -1,21 +1,31 @@
 <template>
   <VContainer fluid class="justify-center">
-    <VCard fluid>
-      <VCardText>
-        <h2>{{welcome}} {{username}} !</h2>
-      </VCardText>
-    </VCard>
+    <VRow>
+      <VCol></VCol>
+      <VCol cols="12" sm="6" md="4" lg="3">
+        <VCard fluid>
+          <VCardText>
+            <h2>{{ welcome }} {{ username }} !</h2>
+          </VCardText>
+        </VCard>
+      </VCol>
+      <VCol></VCol>
+    </VRow>
   </VContainer>
-  <VContainer fluid class="fill-height justify-center">
-    <relayToggler/>
+  <VContainer fluid class="justify-center">
+    <relayToggler />
   </VContainer>
 </template>
 
 <script setup lang="ts">
 
+useHead({
+  title: 'Dashboard',
+})
+
 definePageMeta({
   layout: "appbar",
-})
+});
 
 let username = ref("");
 let welcome = ref("");
@@ -34,6 +44,5 @@ function setWelcome(): string {
 onMounted(() => {
   username.value = localStorage.getItem("name");
   welcome.value = setWelcome();
-})
-
+});
 </script>

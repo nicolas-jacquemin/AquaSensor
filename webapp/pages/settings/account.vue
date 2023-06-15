@@ -19,6 +19,10 @@
 
 <script setup>
 
+useHead({
+  title: 'Account',
+})
+
 definePageMeta({
     layout: "appbar"
 })

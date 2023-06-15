@@ -24,6 +24,11 @@
 </template>
 
 <script setup>
+
+useHead({
+  title: 'Settings',
+})
+
 definePageMeta({
   layout: "appbar",
 });

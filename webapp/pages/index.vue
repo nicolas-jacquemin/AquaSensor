@@ -74,6 +74,11 @@
 </template>
 
 <script setup lang="ts">
+
+useHead({
+  title: 'Login',
+})
+
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
@@ -121,7 +126,7 @@ const submit = async () => {
     if (!callback)
       window.location.href="/dashboard";
     else
-      router.push(callback);
+      window.location.href=callback;
   } catch (error) {
     if (error.message === "Server error") {
       password.value = "";

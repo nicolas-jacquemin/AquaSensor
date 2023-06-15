@@ -86,13 +86,13 @@ export default defineNuxtConfig({
     meta: {
       name: shortTitle,
       author: "Aquasensor",
-      theme_color: "#4f46e5",
+      theme_color: "#60ea8b",
       description: description,
     },
     manifest: {
       name: shortTitle,
       short_name: shortTitle,
-      theme_color: "#4f46e5",
+      theme_color: "#60ea8b",
       description: description,
     },
   },
