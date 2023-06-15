@@ -26,7 +26,7 @@ export default async function getAccessToken(): Promise<string> {
         setStorage(userData.data.email, userData.data.icon, userData.data.name, userData.data.slug, userData.data.permissions);
         return localStorage.getItem("token")!;
     } catch (e: any) {
-        if (e.message === "Invalid Token") {
+        if (e.message === "Invalid token") {
             let renew = await fetch("/api/auth/renewToken", {
                 method: "POST",
                 headers: {
